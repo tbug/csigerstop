@@ -59,6 +59,9 @@ class DataCache(object):
         self.current_capacity += new_value_length
         self.cache[key] = value
 
+    def get_keys(self):
+        return self.cache.keys()
+
 
 class Resource(object):
 
@@ -114,7 +117,7 @@ class Resource(object):
             draw.font_size = 148
             draw.text_antialias = True
             draw.gravity = "north_west"
-            draw.text_kerning = -6
+            draw.text_kerning = -4
             draw.text_interline_spacing = -int(draw.font_size/3)
             draw.text(0, self.text_offset, text.upper())
             draw.draw(img)
@@ -126,7 +129,6 @@ class Resource(object):
         if len(text) > TEXT_MAX_LEN:
             resp.body = "no"
         text = text.replace(" ", "\n")
-
 
         image_data = self.cache.get(text)
 
@@ -156,3 +158,8 @@ class Resource(object):
 
         resp.set_header("Content-Type", "image/png")
         resp.body = image_data
+
+    def on_post(self, req, resp):
+        stats = "%d items in cache" % len(self.cache.cache)
+
+        resp.body = stats + "\n\n" + "\n==========\n".join(self.cache.get_keys()).strip()
