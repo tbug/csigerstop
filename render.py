@@ -1,5 +1,7 @@
 import falcon
 import collections
+import time
+import hashlib
 from wand.image import Image
 from wand.color import Color
 from wand.font import Font
@@ -125,13 +127,16 @@ class Resource(object):
     def on_get(self, req, resp):
         image_data = None
 
+        if req.get_header("If-None-Match") and req.get_header("Cache-Control") != "no-cache":
+            resp.status = falcon.HTTP_304
+            return
+
         text = req.get_param("text", True)
         if len(text) > TEXT_MAX_LEN:
             resp.body = "no"
         text = text.replace(" ", "\n")
 
         image_data = self.cache.get(text)
-
         if not image_data:
             with Image(
                     height=OUTPUT_HEIGHT,
@@ -156,7 +161,9 @@ class Resource(object):
                 image_data = canvas.make_blob("png")
             self.cache.set(text, image_data)
 
+        resp.set_header("Cache-Control", "public, max-age=3600")
         resp.set_header("Content-Type", "image/png")
+        resp.set_header("ETag", hashlib.md5(text.encode("utf-8")).hexdigest())
         resp.body = image_data
 
     def on_post(self, req, resp):
