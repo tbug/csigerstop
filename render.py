@@ -21,13 +21,15 @@ COLOR_DIM = Color(HEX_COLOR_DIM)
 WIDTH_HEIGHT_RATIO = 1.5
 OUTPUT_WIDTH = 600
 OUTPUT_HEIGHT = int(OUTPUT_WIDTH * WIDTH_HEIGHT_RATIO)
+FONT_WIDTH_RATIO = 0.23
+FONT_SIZE = int(OUTPUT_WIDTH * FONT_WIDTH_RATIO)
 
-PATH_FONT = "./Raleway-ExtraBoldItalic.ttf"
-LZY_PATH_FONT = "./Raleway-Medium.ttf"
-PATH_IMG_STOP = "./stop.svg"
-PATH_IMG_PAYOFF = "./payoff.png"
-PATH_IMG_NAME = "./name.png"
-PATH_IMG_LOGO = "./logo.png"
+PATH_FONT = "./fonts/Raleway-ExtraBoldItalic.ttf"
+LZY_PATH_FONT = "./fonts/Raleway-Medium.ttf"
+PATH_IMG_STOP = "./images/stop.svg"
+PATH_IMG_PAYOFF = "./images/payoff.png"
+PATH_IMG_NAME = "./images/name.png"
+PATH_IMG_LOGO = "./images/logo.png"
 
 IMG_STOP_WIDTH_TARGET = int(0.66*OUTPUT_WIDTH)
 IMG_PAYOFF_WIDTH_TARGET = int(0.20*OUTPUT_WIDTH)
@@ -68,60 +70,97 @@ class DataCache(object):
 class Resource(object):
 
     def __init__(self):
-
-        # "stop" image
-        img_stop = Image(filename=PATH_IMG_STOP)
-        scale = int(img_stop.height * IMG_STOP_WIDTH_TARGET / img_stop.width)
-        img_stop.resize(IMG_STOP_WIDTH_TARGET, scale)
-        self.img_stop = img_stop
-
-        # "payoff" image
-        img_payoff = Image(filename=PATH_IMG_PAYOFF)
-        scale = int(img_payoff.height * IMG_PAYOFF_WIDTH_TARGET / img_payoff.width)
-        img_payoff.resize(IMG_PAYOFF_WIDTH_TARGET, scale)
-        self.img_payoff = img_payoff
-
-        # name
-        img_name = Image(filename=PATH_IMG_NAME)
-        scale = int(img_name.height * IMG_NAME_WIDTH_TARGET / img_name.width)
-        img_name.resize(IMG_NAME_WIDTH_TARGET, scale)
-        self.img_name = img_name
-
-        # logo
-        img_logo = Image(filename=PATH_IMG_LOGO)
-        scale = int(img_logo.height * IMG_LOGO_WIDTH_TARGET / img_logo.width)
-        img_logo.resize(IMG_LOGO_WIDTH_TARGET, scale)
-        self.img_logo = img_logo
-
-        self.stop_offset = int(OUTPUT_HEIGHT*0.11)
-        self.text_offset = self.stop_offset+self.img_stop.height-15
-        self.name_offset = int(OUTPUT_HEIGHT*0.88)
-        self.payoff_offset = int(OUTPUT_HEIGHT*0.888)
-        self.logo_offset = int(OUTPUT_HEIGHT*0.858)
-
         self.cache = DataCache(1024*1024*CACHE_SIZE)
+        self._base_img = None
 
-        footer_draw = Drawing()
-        footer_draw.font = LZY_PATH_FONT
-        footer_draw.font_size = 14
-        footer_draw.fill_color = COLOR_DIM
-        footer_draw.gravity = "south_east"
-        footer_draw.text(5, 5, "stopc.lzy.dk")
-        self.footer_draw = footer_draw
+        # calc the offsets
+        self.stop_offset = 0
+        self.text_offset = 0
+        self.name_offset = 0
+        self.payoff_offset = 0
+        self.logo_offset = 0
 
-    def draw_footer(self, img):
-        self.footer_draw.draw(img)
+    @property
+    def base_img(self):
+        if not self._base_img:
+            # compose the base image
+
+            # "stop" image
+            img_stop = Image(filename=PATH_IMG_STOP)
+            scale = int(img_stop.height * IMG_STOP_WIDTH_TARGET / img_stop.width)
+            img_stop.resize(IMG_STOP_WIDTH_TARGET, scale)
+
+            # "payoff" image
+            img_payoff = Image(filename=PATH_IMG_PAYOFF)
+            scale = int(img_payoff.height * IMG_PAYOFF_WIDTH_TARGET / img_payoff.width)
+            img_payoff.resize(IMG_PAYOFF_WIDTH_TARGET, scale)
+
+            # name
+            img_name = Image(filename=PATH_IMG_NAME)
+            scale = int(img_name.height * IMG_NAME_WIDTH_TARGET / img_name.width)
+            img_name.resize(IMG_NAME_WIDTH_TARGET, scale)
+
+            # logo
+            img_logo = Image(filename=PATH_IMG_LOGO)
+            scale = int(img_logo.height * IMG_LOGO_WIDTH_TARGET / img_logo.width)
+            img_logo.resize(IMG_LOGO_WIDTH_TARGET, scale)
+
+            # calc the offsets
+            self.stop_offset = int(OUTPUT_HEIGHT*0.11)
+            self.text_offset = int(self.stop_offset+img_stop.height-img_stop.height*0.18)
+            self.name_offset = int(OUTPUT_HEIGHT*0.88)
+            self.payoff_offset = int(OUTPUT_HEIGHT*0.888)
+            self.logo_offset = int(OUTPUT_HEIGHT*0.858)
+
+            # compose the base image
+            base_img = Image(
+                height=OUTPUT_HEIGHT,
+                width=OUTPUT_WIDTH,
+                background=COLOR_DARK)
+
+            base_img.composite(img_stop, left=0, top=self.stop_offset)
+
+            base_img.composite(img_name,
+                               left=int(OUTPUT_WIDTH*0.08),
+                               top=self.name_offset)
+            base_img.composite(img_payoff,
+                               left=int(OUTPUT_WIDTH*0.57),
+                               top=self.payoff_offset)
+            base_img.composite(img_logo,
+                               left=int(OUTPUT_WIDTH*0.80),
+                               top=self.logo_offset)
+
+            with Drawing() as footer_draw:
+                footer_draw.font = LZY_PATH_FONT
+                footer_draw.font_size = 16
+                footer_draw.fill_color = COLOR_DIM
+                footer_draw.gravity = "south_east"
+                footer_draw.text(5, 5, "stopc.lzy.dk")
+                footer_draw.draw(base_img)
+
+            img_stop.destroy()
+            img_payoff.destroy()
+            img_name.destroy()
+            img_logo.destroy()
+
+            self._base_img = base_img
+
+        return self._base_img
 
     def draw_text(self, img, text):
         with Drawing() as draw:
             draw.font = PATH_FONT
             draw.fill_color = COLOR_LIME
-            draw.font_size = 148
+            draw.font_size = FONT_SIZE
             draw.text_antialias = True
             draw.gravity = "north_west"
-            draw.text_kerning = -4
-            draw.text_interline_spacing = -int(draw.font_size/3)
-            draw.text(0, self.text_offset, text.upper())
+            draw.text_kerning = 0
+            lines = text.upper().split("\n")
+            i = 0
+            for line in lines:
+                draw.text(0, self.text_offset + i * (FONT_SIZE-int(FONT_SIZE/6)), line)
+                i += 1
+
             draw.draw(img)
 
     def on_get(self, req, resp):
@@ -138,26 +177,8 @@ class Resource(object):
 
         image_data = self.cache.get(text)
         if not image_data:
-            with Image(
-                    height=OUTPUT_HEIGHT,
-                    width=OUTPUT_WIDTH,
-                    background=COLOR_DARK) as canvas:
-
-                canvas.composite(self.img_stop, left=0, top=self.stop_offset)
-
-                canvas.composite(self.img_name,
-                                 left=int(OUTPUT_WIDTH*0.08),
-                                 top=self.name_offset)
-                canvas.composite(self.img_payoff,
-                                 left=int(OUTPUT_WIDTH*0.57),
-                                 top=self.payoff_offset)
-                canvas.composite(self.img_logo,
-                                 left=int(OUTPUT_WIDTH*0.80),
-                                 top=self.logo_offset)
-
+            with self.base_img.clone() as canvas:
                 self.draw_text(canvas, text)
-                self.draw_footer(canvas)
-
                 image_data = canvas.make_blob("png")
             self.cache.set(text, image_data)
 

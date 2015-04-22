@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+{% if text %}
+    <img src="/render?text={{text|urlencode}}" alt="Konservativ - stop {{text}}" />
+{% else %}
+    <img src="/render?text=ham+mer+time" alt="Konservativ - stop ham mer time" />
+{% endif %}
+    <h1>Konservativ Plakat Generator</h1>
+    <p>Lav en ny plakat:</p>
+    <form action="" method="GET">
+        <p>Hvad skal stoppes?</p>
+        <input id="ta" name="text" placeholder="nazi islam isme" >
+        <button>Lav plakat</button>
+    </form>
+{% endblock %}
