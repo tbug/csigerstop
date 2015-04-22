@@ -10,15 +10,18 @@ TEXT_MAX_LEN = 100
 
 HEX_COLOR_LIME = "#9AC61E"
 HEX_COLOR_DARK = "#044638"
+HEX_COLOR_DIM = "#888"
 
 COLOR_LIME = Color(HEX_COLOR_LIME)
 COLOR_DARK = Color(HEX_COLOR_DARK)
+COLOR_DIM = Color(HEX_COLOR_DIM)
 
 WIDTH_HEIGHT_RATIO = 1.5
 OUTPUT_WIDTH = 600
 OUTPUT_HEIGHT = int(OUTPUT_WIDTH * WIDTH_HEIGHT_RATIO)
 
 PATH_FONT = "./Raleway-ExtraBoldItalic.ttf"
+LZY_PATH_FONT = "./Raleway-Medium.ttf"
 PATH_IMG_STOP = "./stop.svg"
 PATH_IMG_PAYOFF = "./payoff.png"
 PATH_IMG_NAME = "./name.png"
@@ -93,6 +96,29 @@ class Resource(object):
 
         self.cache = DataCache(1024*1024*CACHE_SIZE)
 
+        footer_draw = Drawing()
+        footer_draw.font = LZY_PATH_FONT
+        footer_draw.font_size = 14
+        footer_draw.fill_color = COLOR_DIM
+        footer_draw.gravity = "south_east"
+        footer_draw.text(5, 5, "stopc.lzy.dk")
+        self.footer_draw = footer_draw
+
+    def draw_footer(self, img):
+        self.footer_draw.draw(img)
+
+    def draw_text(self, img, text):
+        with Drawing() as draw:
+            draw.font = PATH_FONT
+            draw.fill_color = COLOR_LIME
+            draw.font_size = 148
+            draw.text_antialias = True
+            draw.gravity = "north_west"
+            draw.text_kerning = -6
+            draw.text_interline_spacing = -int(draw.font_size/3)
+            draw.text(0, self.text_offset, text.upper())
+            draw.draw(img)
+
     def on_get(self, req, resp):
         image_data = None
 
@@ -105,37 +131,27 @@ class Resource(object):
         image_data = self.cache.get(text)
 
         if not image_data:
-            with Drawing() as draw:
+            with Image(
+                    height=OUTPUT_HEIGHT,
+                    width=OUTPUT_WIDTH,
+                    background=COLOR_DARK) as canvas:
 
-                draw.font = PATH_FONT
-                draw.fill_color = COLOR_LIME
-                draw.font_size = 148
-                draw.text_antialias = True
-                draw.gravity = "north_west"
-                draw.text_kerning = -6
-                draw.text_interline_spacing = -int(draw.font_size/3)
-                draw.text(0, self.text_offset, text.upper())
+                canvas.composite(self.img_stop, left=0, top=self.stop_offset)
 
-                with Image(
-                        height=OUTPUT_HEIGHT,
-                        width=OUTPUT_WIDTH,
-                        background=COLOR_DARK) as canvas:
+                canvas.composite(self.img_name,
+                                 left=int(OUTPUT_WIDTH*0.08),
+                                 top=self.name_offset)
+                canvas.composite(self.img_payoff,
+                                 left=int(OUTPUT_WIDTH*0.57),
+                                 top=self.payoff_offset)
+                canvas.composite(self.img_logo,
+                                 left=int(OUTPUT_WIDTH*0.80),
+                                 top=self.logo_offset)
 
-                    canvas.composite(self.img_stop, left=0, top=self.stop_offset)
+                self.draw_text(canvas, text)
+                self.draw_footer(canvas)
 
-                    canvas.composite(self.img_name,
-                                     left=int(OUTPUT_WIDTH*0.08),
-                                     top=self.name_offset)
-                    canvas.composite(self.img_payoff,
-                                     left=int(OUTPUT_WIDTH*0.57),
-                                     top=self.payoff_offset)
-                    canvas.composite(self.img_logo,
-                                     left=int(OUTPUT_WIDTH*0.80),
-                                     top=self.logo_offset)
-
-                    draw.draw(canvas)
-
-                    image_data = canvas.make_blob("png")
+                image_data = canvas.make_blob("png")
             self.cache.set(text, image_data)
 
         resp.set_header("Content-Type", "image/png")
