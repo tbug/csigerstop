@@ -5,7 +5,7 @@ from wand.color import Color
 from wand.font import Font
 from wand.drawing import Drawing
 
-CACHE_SIZE = 10  # MB
+CACHE_SIZE = 32  # MB
 TEXT_MAX_LEN = 100
 
 HEX_COLOR_LIME = "#9AC61E"
