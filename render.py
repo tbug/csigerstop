@@ -7,8 +7,8 @@ from wand.color import Color
 from wand.font import Font
 from wand.drawing import Drawing
 
-CACHE_SIZE = 32  # MB
-TEXT_MAX_LEN = 100
+CACHE_SIZE = 64  # MB
+TEXT_MAX_LEN = 200
 
 HEX_COLOR_LIME = "#9AC61E"
 HEX_COLOR_DARK = "#044638"
@@ -195,7 +195,9 @@ class Resource(object):
 
         text = req.get_param("text", True)
         if len(text) > TEXT_MAX_LEN:
-            resp.body = "no"
+            resp.status = falcon.HTTP_403
+            resp.body = "Text to long."
+            return
 
         # if text has no newline, assume space is the newline
         if "\n" not in text:
