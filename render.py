@@ -3,7 +3,7 @@ import collections
 import time
 import hashlib
 import re
-from wand.image import Image
+from wand.image import Image, CHANNELS
 from wand.color import Color
 from wand.font import Font
 from wand.drawing import Drawing
@@ -13,7 +13,7 @@ TEXT_MAX_LEN = 200
 
 HEX_COLOR_LIME = "#9AC61E"
 HEX_COLOR_DARK = "#044638"
-HEX_COLOR_DIM = "#eee"
+HEX_COLOR_DIM = "#ffffff50"
 
 COLOR_LIME = Color(HEX_COLOR_LIME)
 COLOR_DARK = Color(HEX_COLOR_DARK)
@@ -31,11 +31,13 @@ PATH_IMG_STOP = "./images/stop.svg"
 PATH_IMG_PAYOFF = "./images/payoff.png"
 PATH_IMG_NAME = "./images/name.png"
 PATH_IMG_LOGO = "./images/logo.png"
+PATH_IMG_DICKBUTT = "./images/dickbutt.png"
 
 IMG_STOP_WIDTH_TARGET = int(0.66*OUTPUT_WIDTH)
 IMG_PAYOFF_WIDTH_TARGET = int(0.20*OUTPUT_WIDTH)
 IMG_NAME_WIDTH_TARGET = int(0.28*OUTPUT_WIDTH)
 IMG_LOGO_WIDTH_TARGET = int(0.12*OUTPUT_WIDTH)
+IMG_DICKBUTT_WIDTH_TARGET = int(0.05*OUTPUT_WIDTH)
 
 
 class DataCache(object):
@@ -106,12 +108,20 @@ class Resource(object):
             scale = int(img_logo.height * IMG_LOGO_WIDTH_TARGET / img_logo.width)
             img_logo.resize(IMG_LOGO_WIDTH_TARGET, scale)
 
+            # dickbutt
+            img_dickbutt = Image(filename=PATH_IMG_DICKBUTT)
+            scale = int(img_dickbutt.height * IMG_DICKBUTT_WIDTH_TARGET / img_dickbutt.width)
+            img_dickbutt.resize(IMG_DICKBUTT_WIDTH_TARGET, scale)
+
             # calc the offsets
             self.stop_offset = int(OUTPUT_HEIGHT*0.11)
             self.text_offset = int(self.stop_offset+img_stop.height)
             self.name_offset = int(OUTPUT_HEIGHT*0.88)
             self.payoff_offset = int(OUTPUT_HEIGHT*0.888)
             self.logo_offset = int(OUTPUT_HEIGHT*0.858)
+
+            dickbutt_x_offset = int(OUTPUT_WIDTH*0.24)
+            dickbutt_y_offset = int(OUTPUT_HEIGHT*0.9)
 
             # compose the base image
             base_img = Image(
@@ -130,6 +140,13 @@ class Resource(object):
             base_img.composite(img_logo,
                                left=int(OUTPUT_WIDTH*0.80),
                                top=self.logo_offset)
+
+            base_img.composite_channel(
+                channel="rgb_channels",
+                image=img_dickbutt,
+                left=dickbutt_x_offset,
+                top=dickbutt_y_offset,
+                operator='blend')
 
             with Drawing() as footer_draw:
                 footer_draw.font = LZY_PATH_FONT
