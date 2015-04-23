@@ -1,15 +1,35 @@
 {% extends "base.html" %}
+{% block head %}
+    {{super()}}
+    <script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
+    <script type="text/javascript">stLight.options({publisher: "efe1215f-7463-48cc-9d48-f78c0380a25a", doNotHash: true, doNotCopy: true, hashAddressBar: false});</script>
+{% endblock %}
 {% block content %}
-{% if text %}
-    <img src="/render?text={{text|urlencode}}" alt="Konservativ - stop {{text}}" />
-{% else %}
-    <img src="/render?text=ham+mer+time" alt="Konservativ - stop ham mer time" />
-{% endif %}
-    <h1>Konservativ Plakat Generator</h1>
-    <p>Lav en ny plakat:</p>
-    <form action="" method="GET">
-        <p>Hvad skal stoppes?</p>
-        <input id="ta" name="text" placeholder="nazi islam isme" >
-        <button>Lav plakat</button>
-    </form>
+<div id="header">
+    <div id="header-content">
+        <a href="/"><h1>Konservativ Plakat Generator</h1></a>
+        <form action="" method="GET">
+            <div id="field">
+                <span>STOP </span><input name="text" placeholder="NAZI ISLAM ISME" value="{{text}}" >
+            </div>
+            <button>LAV PLAKAT</button>
+        </form>
+    </div>
+</div>
+<div id="share-buttons">
+    <span class='st_fblike_hcount' displayText='Facebook Like'></span>
+    <span class='st_facebook_hcount' displayText='Facebook'></span>
+    <span class='st_twitter_hcount' displayText='Tweet'></span>
+    <span class='st_reddit_hcount' displayText='Reddit'></span>
+    <span class='st_googleplus_hcount' displayText='Google +'></span>
+    <span class='st_plusone_hcount' displayText='Google +1'></span>
+    <span class='st__hcount' displayText=''></span>
+</div>
+<div id="image-placeholder">
+    {% if text %}
+        <img src="/render?text={{text|urlencode}}" alt="Konservativ - stop {{text}}" />
+    {% else %}
+        <img src="/render?text=ham+mer+time" alt="Konservativ - stop ham mer time" />
+    {% endif %}
+</div>
 {% endblock %}

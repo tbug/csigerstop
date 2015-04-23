@@ -18,4 +18,4 @@ class Resource(object):
         if text:
             resp.add_link("/render?text=%s" % uri.encode(text), "prefetch")
 
-        resp.body = self.env.get_template("index.html").render(text=text)
+        resp.body = self.env.get_template("index.html").render(text=text or "")
