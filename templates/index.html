@@ -3,6 +3,14 @@
     {{super()}}
     <script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
     <script type="text/javascript">stLight.options({publisher: "efe1215f-7463-48cc-9d48-f78c0380a25a", doNotHash: true, doNotCopy: true, hashAddressBar: false});</script>
+
+    {% if text %}
+        <meta property="og:image" content="/render?text={{text|urlencode}}"/>
+        <meta property="og:title" content="{{text}}" />
+    {% else %}
+        <meta property="og:image" content="/render?text=ham+mer+time"/>
+        <meta property="og:title" content="ham mer time" />
+    {% endif %}
 {% endblock %}
 {% block content %}
 <div id="header">
