@@ -16,6 +16,7 @@ class Resource(object):
         resp.set_header("Content-Type", "text/html; charset=utf8")
 
         if text:
+            text = text.strip()
             resp.add_link("/render?text=%s" % uri.encode(text), "prefetch")
 
         resp.body = self.env.get_template("index.html").render(text=text or "")

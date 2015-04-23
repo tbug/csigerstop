@@ -198,7 +198,7 @@ class Resource(object):
             resp.status = falcon.HTTP_304
             return
 
-        text = req.get_param("text", True)
+        text = req.get_param("text", True).strip()
         if len(text) > TEXT_MAX_LEN:
             resp.status = falcon.HTTP_403
             resp.body = "Text to long."
