@@ -2,6 +2,7 @@ import falcon
 import collections
 import time
 import hashlib
+import re
 from wand.image import Image
 from wand.color import Color
 from wand.font import Font
@@ -201,7 +202,7 @@ class Resource(object):
 
         # if text has no newline, assume space is the newline
         if "\n" not in text:
-            text = text.replace(" ", "\n")
+            text = re.sub(r" +", "\n", text)
 
         image_data = self.cache.get(text)
         if not image_data:
