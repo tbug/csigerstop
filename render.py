@@ -12,7 +12,7 @@ TEXT_MAX_LEN = 100
 
 HEX_COLOR_LIME = "#9AC61E"
 HEX_COLOR_DARK = "#044638"
-HEX_COLOR_DIM = "#888"
+HEX_COLOR_DIM = "#eee"
 
 COLOR_LIME = Color(HEX_COLOR_LIME)
 COLOR_DARK = Color(HEX_COLOR_DARK)
@@ -107,7 +107,7 @@ class Resource(object):
 
             # calc the offsets
             self.stop_offset = int(OUTPUT_HEIGHT*0.11)
-            self.text_offset = int(self.stop_offset+img_stop.height-img_stop.height*0.18)
+            self.text_offset = int(self.stop_offset+img_stop.height)
             self.name_offset = int(OUTPUT_HEIGHT*0.88)
             self.payoff_offset = int(OUTPUT_HEIGHT*0.888)
             self.logo_offset = int(OUTPUT_HEIGHT*0.858)
@@ -135,7 +135,7 @@ class Resource(object):
                 footer_draw.font_size = 16
                 footer_draw.fill_color = COLOR_DIM
                 footer_draw.gravity = "south_east"
-                footer_draw.text(5, 5, "stopc.lzy.dk")
+                footer_draw.text(5, 5, "http://stopc.lzy.dk/")
                 footer_draw.draw(base_img)
 
             img_stop.destroy()
@@ -151,14 +151,37 @@ class Resource(object):
         with Drawing() as draw:
             draw.font = PATH_FONT
             draw.fill_color = COLOR_LIME
-            draw.font_size = FONT_SIZE
             draw.text_antialias = True
             draw.gravity = "north_west"
             draw.text_kerning = 0
+            draw.text_interline_spacing = -10
             lines = text.upper().split("\n")
             i = 0
+            offset = 0
+
             for line in lines:
-                draw.text(0, self.text_offset + i * (FONT_SIZE-int(FONT_SIZE/6)), line)
+                draw.font_size = FONT_SIZE
+                fm = draw.get_font_metrics(img, line)
+                iter_protect = 20
+                while fm.text_width > OUTPUT_WIDTH and iter_protect > 0:
+                    draw.font_size -= draw.font_size / 10
+                    fm = draw.get_font_metrics(img, line)
+                    iter_protect -= 1
+
+                # each line as some spare room top and bottom due to font.
+                # we want tight text, so we need to figure out what we can draw over
+                spare_room_bottom = int(fm.text_height * 0.15)
+                if "Å" in line:
+                    spare_room_top = 0
+                else:
+                    spare_room_top = int(fm.text_height * 0.15)
+
+                line_offset = self.text_offset + offset - spare_room_top
+
+                draw.text(0, line_offset, line)
+
+                offset += round(fm.text_height) - spare_room_top - spare_room_bottom
+
                 i += 1
 
             draw.draw(img)
@@ -173,7 +196,10 @@ class Resource(object):
         text = req.get_param("text", True)
         if len(text) > TEXT_MAX_LEN:
             resp.body = "no"
-        text = text.replace(" ", "\n")
+
+        # if text has no newline, assume space is the newline
+        if "\n" not in text:
+            text = text.replace(" ", "\n")
 
         image_data = self.cache.get(text)
         if not image_data:
