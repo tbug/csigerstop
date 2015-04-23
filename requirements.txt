@@ -1,4 +1,5 @@
-falcon==0.2
+cython==0.22
+falcon==0.3.0rc1
 gunicorn==19.3.0
 Wand==0.4
 Jinja2==2.7.3
