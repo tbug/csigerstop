@@ -6,10 +6,10 @@
 
     {% if text %}
         <meta property="og:image" content="http://stopc.lzy.dk/render?text={{text|urlencode}}"/>
-        <meta property="og:title" content="{{text}}" />
+        <meta property="og:title" content="stop {{text}}" />
     {% else %}
         <meta property="og:image" content="http://stopc.lzy.dk/render?text=ham+mer+time"/>
-        <meta property="og:title" content="ham mer time" />
+        <meta property="og:title" content="stop ham mer time" />
     {% endif %}
 {% endblock %}
 {% block content %}
