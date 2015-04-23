@@ -161,6 +161,10 @@ class Resource(object):
             offset = 0
 
             for line in lines:
+                # line can't be empty
+                if len(line) < 1:
+                    continue
+
                 draw.font_size = FONT_SIZE
                 fm = draw.get_font_metrics(img, line)
                 iter_protect = 20
