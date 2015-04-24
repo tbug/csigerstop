@@ -48,8 +48,6 @@ class Resource(object):
             else:
                 resp.location = "http://csigerstop.dk"
         else:
-            resp.set_header("Cache-Control", "max-age=3600")
-            resp.set_header("Content-Type", "text/html; charset=utf8")
 
             if text and len(text) > 0:
                 resp.add_link("/render?text=%s" % uri.encode(text), "prefetch")
@@ -67,4 +65,6 @@ class Resource(object):
                 "text": text or "",
                 "popular": self.stats.get_top(4)
             }
+            resp.set_header("Cache-Control", "max-age=3600")
+            resp.set_header("Content-Type", "text/html; charset=utf8")
             resp.body = self.env.get_template("index.html").render(**context)

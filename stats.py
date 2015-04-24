@@ -1,14 +1,19 @@
 import collections
 import time
+from math import log, exp
 
 
-def hackernews_score(number, hour_age, gravity=1.2):
-    return (number - 1) / pow((hour_age+2), gravity)
+def hotness(count, last, now):
+    base = log(max(count, 1))
+    diff = (now - last) / 604800
+    x = diff - 1
+    return base * exp(-8*x*x)
 
 
 class StatsObject(object):
-    def __init__(self, purge_after=900):
+    def __init__(self, purge_after=900, min_count=5):
         self.purge_after = purge_after
+        self.min_count = min_count
         self.data = {}
 
     def increment(self, key):
@@ -17,20 +22,19 @@ class StatsObject(object):
             self.data[key] = (current[0], time.time(), current[2]+1)
         else:
             now = time.time()
-            self.data[key] = (now, now, 1)
+            self.data[key] = (now, now, 2)
 
     def clean(self):
         now = time.time()
         purge_after = self.purge_after
+        min_count = self.min_count
         self.data = {key: value
                      for key, value in self.data.items()
-                     if (now - value[1]) < purge_after}
+                     if (now - value[1]) < purge_after and value[2] >= min_count}
 
     def get_top(self, n):
-        scoregen = ((key, hackernews_score(count, (last - first) / 3600))
+        now = time.time()
+        scoregen = ((key, hotness(count, first, now))
                     for (key, (first, last, count)) in self.data.items())
-        return reversed(
-            list(
-                map(
-                    lambda t: t[0], sorted(
-                        scoregen, key=lambda t: t[1])[:n])))
+        sort = sorted(scoregen, key=lambda t: t[1])[:n]
+        return reversed(list(map(lambda t: t[0], sort)))

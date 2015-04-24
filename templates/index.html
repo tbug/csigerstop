@@ -6,10 +6,10 @@
     <script type="text/javascript">stLight.options({publisher: "efe1215f-7463-48cc-9d48-f78c0380a25a", doNotHash: true, doNotCopy: true, hashAddressBar: false});</script>
 
     {% if text %}
-        <meta property="og:image" content="http://stopc.lzy.dk/render?text={{text|urlencode}}"/>
+        <meta property="og:image" content="http://csigerstop.dk/render?text={{text|urlencode}}"/>
         <meta property="og:title" content="stop {{text}}" />
     {% else %}
-        <meta property="og:image" content="http://stopc.lzy.dk/hammertime.png"/>
+        <meta property="og:image" content="http://csigerstop.dk/hammertime.png"/>
         <meta property="og:title" content="stop ham mer time" />
     {% endif %}
 {% endblock %}
@@ -17,7 +17,7 @@
 <div id="header">
     <div id="header-content">
         <a href="/"><h1>CSigerStop.dk</h1></a>
-        <form action="" method="GET">
+        <form name="posterform" action="/" method="GET">
             <span>STOP</span><input autofocus name="text" size=30 placeholder="nazi islam isme" value="{{text|lower}}" ><button>LAV PLAKAT</button>
         </form>
         <div class="clear"></div>
@@ -41,9 +41,11 @@
 
 <div id="other-posters">
     <hr>
-    <h2>Populære Plakater</h2>
+    <h2>Mest Besøgte Plakater Lige Nu</h2>
     <div id="popular-container">
     {% for item in popular %}<a class="popular" href="/?text={{item|urlencode}}"><img src="/render?text={{item|urlencode}}&thumbnail=1" alt="Konservativ - stop {{item}}" /></a>{% endfor %}
+    <br>
+    <a id="view-hot-posters" href="/hot">Se flere</a>
     </div>
 </div>
 
