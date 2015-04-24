@@ -153,7 +153,7 @@ class Resource(object):
                 footer_draw.font_size = 14
                 footer_draw.fill_color = COLOR_DIM
                 footer_draw.gravity = "south_east"
-                footer_draw.text(5, 5, "http://stopc.lzy.dk/")
+                footer_draw.text(5, 5, "csigerstop.dk")
                 footer_draw.draw(base_img)
 
             img_stop.destroy()

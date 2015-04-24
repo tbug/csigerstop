@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block pretitle %}{% if text %}{{text}} - {% endif %}{% endblock %}
 {% block head %}
     {{super()}}
     <script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
@@ -19,19 +20,17 @@
         <a id="hashtag" href="https://twitter.com/hashtag/csigerstop">#csigerstop</a>
         <form action="" method="GET">
             <div id="field">
-                <span>STOP </span><input name="text" placeholder="nazi islam isme" value="{{text}}" >
+                <span>STOP </span><input name="text" placeholder="nazi islam isme" value="{{text|lower}}" >
             </div>
             <button>LAV PLAKAT</button>
         </form>
     </div>
 </div>
 <div id="share-buttons">
-    <span class='st_fblike_hcount' displayText='Facebook Like'></span>
     <span class='st_facebook_hcount' displayText='Facebook'></span>
     <span class='st_twitter_hcount' displayText='Tweet'></span>
     <span class='st_reddit_hcount' displayText='Reddit'></span>
     <span class='st_googleplus_hcount' displayText='Google +'></span>
-    <span class='st_plusone_hcount' displayText='Google +1'></span>
     <span class='st__hcount' displayText=''></span>
 </div>
 <div id="image-placeholder">
