@@ -224,6 +224,7 @@ class Resource(object):
         # if text has no newline, assume space is the newline
         if "\n" not in text:
             text = re.sub(r" +", "\n", text)
+        text = re.sub(r"_+", " ", text)
 
         image_data = self.cache.get(text)
         if not image_data:
