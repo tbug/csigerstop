@@ -11,13 +11,16 @@ class Resource(object):
 
     def on_get(self, req, resp):
 
+
+        text = req.get_param("text")
+
         if "csigerstop.lzy.dk" in req.host:
             resp.status = falcon.HTTP_301
-            resp.location = "http://csigerstop.dk"
+            if text:
+                resp.location = "http://csigerstop.dk?text=%s" % uri.encode(text.lower())
+            else:
+                resp.location = "http://csigerstop.dk"
         else:
-
-            text = req.get_param("text")
-
             resp.set_header("Cache-Control", "max-age=3600")
             resp.set_header("Content-Type", "text/html; charset=utf8")
 
