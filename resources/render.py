@@ -7,6 +7,7 @@ from wand.image import Image, CHANNELS
 from wand.color import Color
 from wand.font import Font
 from wand.drawing import Drawing
+from lrucache import LRUCache
 
 CACHE_SIZE = 48  # MB
 THUMBNAIL_CACHE_SIZE = 24  # MB
@@ -152,44 +153,13 @@ class ImageLayout(object):
 
         return base_img
 
-
-class DataCache(object):
-    def __init__(self, capacity):
-        self.max_capacity = capacity
-        self.current_capacity = 0
-        self.cache = collections.OrderedDict()
-
-    def get(self, key):
-        try:
-            value = self.cache.pop(key)
-            self.cache[key] = value
-            return value
-        except KeyError:
-            return None
-
-    def set(self, key, value):
-        new_value_length = len(value)
-        try:
-            popped = self.cache.pop(key)
-            self.current_capacity -= len(popped)
-        except KeyError:
-            if self.current_capacity + new_value_length > self.max_capacity:
-                popped = self.cache.popitem(last=False)
-                self.current_capacity -= len(popped)
-        self.current_capacity += new_value_length
-        self.cache[key] = value
-
-    def get_keys(self):
-        return self.cache.keys()
-
-
 class Resource(object):
 
     def __init__(self):
         self.image_layout = ImageLayout(IMAGE_WIDTH, IMAGE_HEIGHT)
         self.thumbnail_layout = ImageLayout(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
-        self.image_cache = DataCache(1024*1024*CACHE_SIZE)
-        self.thumbnail_cache = DataCache(1024*1024*THUMBNAIL_CACHE_SIZE)
+        self.image_cache = LRUCache(1024*1024*CACHE_SIZE)
+        self.thumbnail_cache = LRUCache(1024*1024*THUMBNAIL_CACHE_SIZE)
 
     @property
     def base_img(self):
@@ -267,7 +237,6 @@ class Resource(object):
             text = re.sub(r" +", "\n", text)
         text = re.sub(r"_+", " ", text)
 
-
         image_data = cache.get(text)
         if not image_data:
             with layout.base_image.clone() as canvas:
@@ -281,9 +250,12 @@ class Resource(object):
         resp.body = image_data
 
     def on_post(self, req, resp):
-        stats = [
-            "%d items in cache" % len(self.image_cache.image_cache),
-            "%f MB in cache" % ((self.image_cache.current_capacity or 0.1) / 1024 / 1024),
-        ]
 
+        stats = [
+            "%d items in image cache" % len(self.image_cache.cache),
+            "%f MB in image cache" % ((self.image_cache.current_capacity or 0.1) / 1024 / 1024),
+            "",
+            "%d items in thumbnail cache" % len(self.thumbnail_cache.cache),
+            "%f MB in thumbnail cache" % ((self.thumbnail_cache.current_capacity or 0.1) / 1024 / 1024),
+        ]
         resp.body = "\n".join(stats)
