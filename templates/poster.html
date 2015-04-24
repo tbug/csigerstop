@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block pretitle %}{% if text %}{{text}} - {% endif %}{% endblock %}
+{% block head %}
+    {{super()}}
+    <script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
+    <script type="text/javascript">stLight.options({publisher: "efe1215f-7463-48cc-9d48-f78c0380a25a", doNotHash: true, doNotCopy: true, hashAddressBar: false});</script>
+
+    {% if text %}
+        <meta property="og:image" content="http://stopc.lzy.dk/render?text={{text|urlencode}}"/>
+        <meta property="og:title" content="stop {{text}}" />
+    {% else %}
+        <meta property="og:image" content="http://stopc.lzy.dk/render?text=ham+mer+time"/>
+        <meta property="og:title" content="stop ham mer time" />
+    {% endif %}
+{% endblock %}
+{% block content %}
+<div id="image-placeholder">
+    {% if text %}
+        <img src="/render?text={{text|urlencode}}" alt="Konservativ - stop {{text}}" />
+        <p class="dim">Du kan gemme billedet ved at højreklikke og vælge "gem billede som".</p>
+    {% else %}
+        <p style="text-align:center;">Skriv et par ord i tekst boksen i toppen af siden<br>og tryk "LAV PLAKAT"</p>
+    {% endif %}
+</div>
+{% endblock %}

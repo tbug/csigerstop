@@ -16,14 +16,11 @@
 {% block content %}
 <div id="header">
     <div id="header-content">
-        <a href="/"><h1>Konservativ Plakat Generator</h1></a>
-        <a id="hashtag" href="https://twitter.com/hashtag/csigerstop">#csigerstop</a>
+        <a href="/"><h1>CSigerStop.dk</h1></a>
         <form action="" method="GET">
-            <div id="field">
-                <span>STOP </span><input name="text" placeholder="nazi islam isme" value="{{text|lower}}" >
-            </div>
-            <button>LAV PLAKAT</button>
+            <span>STOP</span><input autofocus name="text" size=30 placeholder="nazi islam isme" value="{{text|lower}}" ><button>LAV PLAKAT</button>
         </form>
+        <div class="clear"></div>
     </div>
 </div>
 <div id="share-buttons">
@@ -43,6 +40,7 @@
 </div>
 <div id="about">
     <hr>
+    <h2>Om Den Konservative Plakat Generator</h2>
     <p>Med den Konservative Plakat Generator kan du selv bygge en "stop"-kampagneplakat.<br>
     - Hvad der er på plakaten, er helt op til dig.
     </p>

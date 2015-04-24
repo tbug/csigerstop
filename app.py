@@ -1,6 +1,5 @@
 import falcon
-import render
-import index
+from resources import render, index
 
 app = falcon.API()
 
