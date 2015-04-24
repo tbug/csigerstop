@@ -160,6 +160,7 @@ class Resource(object):
         self.thumbnail_layout = ImageLayout(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
         self.image_cache = LRUCache(1024*1024*CACHE_SIZE)
         self.thumbnail_cache = LRUCache(1024*1024*THUMBNAIL_CACHE_SIZE)
+        self.latest_render_times = collections.deque(maxlen=100)
 
     @property
     def base_img(self):
@@ -239,10 +240,13 @@ class Resource(object):
 
         image_data = cache.get(text)
         if not image_data:
+            time_begin = time.time()
             with layout.base_image.clone() as canvas:
                 self.draw_text(layout, canvas, text)
                 image_data = canvas.make_blob("png")
             cache.set(text, image_data)
+            render_time = time.time() - time_begin
+            self.latest_render_times.append(render_time)
 
         resp.set_header("Cache-Control", "public, max-age=3600")
         resp.set_header("Content-Type", "image/png")
@@ -257,5 +261,7 @@ class Resource(object):
             "",
             "%d items in thumbnail cache" % len(self.thumbnail_cache.cache),
             "%f MB in thumbnail cache" % ((self.thumbnail_cache.current_capacity or 0.1) / 1024 / 1024),
+            "",
+            "Average render time: %.2f ms" % (sum(self.latest_render_times)/len(self.latest_render_times)*1000),
         ]
         resp.body = "\n".join(stats)
