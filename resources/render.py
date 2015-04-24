@@ -8,6 +8,7 @@ from wand.color import Color
 from wand.font import Font
 from wand.drawing import Drawing
 from lrucache import LRUCache
+from util import clean_text
 
 CACHE_SIZE = 48  # MB
 THUMBNAIL_CACHE_SIZE = 24  # MB
@@ -232,7 +233,7 @@ class Resource(object):
             resp.status = falcon.HTTP_304
             return
 
-        text = req.get_param("text", True).strip()
+        text = clean_text(req.get_param("text", True))
         if len(text) > TEXT_MAX_LEN:
             resp.status = falcon.HTTP_403
             resp.body = "Text to long."

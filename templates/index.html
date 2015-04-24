@@ -38,12 +38,15 @@
         <img src="/hammertime.png" alt="Konservativ - stop ham mer time" />
     {% endif %}
 </div>
-<!--
+
 <div id="other-posters">
     <hr>
-    <b>Andre plakater</b>
+    <h2>Populære Plakater</h2>
+    <div id="popular-container">
+    {% for item in popular %}<a class="popular" href="/?text={{item|urlencode}}"><img src="/render?text={{item|urlencode}}&thumbnail=1" alt="Konservativ - stop {{item}}" /></a>{% endfor %}
+    </div>
 </div>
--->
+
 <div id="about">
     <hr>
     <h2>Om Den Konservative Plakat Generator</h2>
