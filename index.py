@@ -11,7 +11,6 @@ class Resource(object):
 
     def on_get(self, req, resp):
 
-
         text = req.get_param("text")
 
         if "csigerstop.lzy.dk" in req.host:
