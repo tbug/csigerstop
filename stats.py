@@ -11,7 +11,7 @@ def hotness(count, last, now):
 
 
 class StatsObject(object):
-    def __init__(self, purge_after=900, min_count=5):
+    def __init__(self, purge_after=900, min_count=2):
         self.purge_after = purge_after
         self.min_count = min_count
         self.data = {}
