@@ -8,8 +8,8 @@ from wand.color import Color
 from wand.font import Font
 from wand.drawing import Drawing
 
-CACHE_SIZE = 32  # MB
-TEXT_MAX_LEN = 200
+CACHE_SIZE = 64  # MB
+TEXT_MAX_LEN = 100
 
 HEX_COLOR_LIME = "#9AC61E"
 HEX_COLOR_DARK = "#044638"
@@ -150,7 +150,7 @@ class Resource(object):
 
             with Drawing() as footer_draw:
                 footer_draw.font = LZY_PATH_FONT
-                footer_draw.font_size = 16
+                footer_draw.font_size = 14
                 footer_draw.fill_color = COLOR_DIM
                 footer_draw.gravity = "south_east"
                 footer_draw.text(5, 5, "http://stopc.lzy.dk/")
@@ -238,6 +238,9 @@ class Resource(object):
         resp.body = image_data
 
     def on_post(self, req, resp):
-        stats = "%d items in cache" % len(self.cache.cache)
+        stats = [
+            "%d items in cache" % len(self.cache.cache),
+            "%f MB in cache" % ((self.cache.current_capacity or 0.1) / 1024 / 1024),
+        ]
 
-        resp.body = stats + "\n\n" + "\n==========\n".join(self.cache.get_keys()).strip()
+        resp.body = "\n".join(stats)

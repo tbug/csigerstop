@@ -19,7 +19,7 @@
         <a id="hashtag" href="https://twitter.com/hashtag/csigerstop">#csigerstop</a>
         <form action="" method="GET">
             <div id="field">
-                <span>STOP </span><input name="text" placeholder="NAZI ISLAM ISME" value="{{text}}" >
+                <span>STOP </span><input name="text" placeholder="nazi islam isme" value="{{text}}" >
             </div>
             <button>LAV PLAKAT</button>
         </form>
@@ -37,12 +37,17 @@
 <div id="image-placeholder">
     {% if text %}
         <img src="/render?text={{text|urlencode}}" alt="Konservativ - stop {{text}}" />
+        <p class="dim">Du kan gemme billedet ved at højreklikke og vælge "gem billede som".</p>
     {% else %}
         <img src="/render?text=ham+mer+time" alt="Konservativ - stop ham mer time" />
     {% endif %}
 </div>
 <div id="about">
-    <p>Med den Konservative Plakat Generator kan du selv bygge kampagneplakat, konservativ-style!</p>
-    <p>Du kan gemme billedet ved at højreklikke og vælge "gem billede som".</p>
+    <hr>
+    <p>Med den Konservative Plakat Generator kan du selv bygge en "stop"-kampagneplakat.<br>
+    - Hvad der er på plakaten, er helt op til dig.
+    </p>
+    <p>Siden er drevet uafhængigt af det Konservative Folkeparti.<br>
+    Spørgsmål mv. kan rettes til <a href="mailto:csigerstop@gmail.com">csigerstop@gmail.com</a></p>
 </div>
 {% endblock %}
