@@ -37,4 +37,4 @@ class StatsObject(object):
         scoregen = ((key, hotness(count, first, now))
                     for (key, (first, last, count)) in self.data.items())
         sort = sorted(scoregen, key=lambda t: t[1])[:n]
-        return reversed(list(map(lambda t: t[0], sort)))
+        return list(reversed(list(map(lambda t: t[0], sort))))

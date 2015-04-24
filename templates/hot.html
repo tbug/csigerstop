@@ -1,24 +1,18 @@
 {% extends "base.html" %}
-{% block pretitle %}{% if text %}{{text}} - {% endif %}{% endblock %}
+{% block pretitle %}Mest Besøgte Plakater Lige Nu{% endblock %}
 {% block head %}
     {{super()}}
     <script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
     <script type="text/javascript">stLight.options({publisher: "efe1215f-7463-48cc-9d48-f78c0380a25a", doNotHash: true, doNotCopy: true, hashAddressBar: false});</script>
-
-    {% if text %}
-        <meta property="og:image" content="http://csigerstop.dk/render?text={{text|urlencode}}"/>
-        <meta property="og:title" content="stop {{text}}" />
-    {% else %}
-        <meta property="og:image" content="http://csigerstop.dk/hammertime.png"/>
-        <meta property="og:title" content="stop ham mer time" />
-    {% endif %}
+    <meta property="og:image" content="http://csigerstop.dk/hammertime.png"/>
+    <meta property="og:title" content="stop ham mer time" />
 {% endblock %}
 {% block content %}
 <div id="header">
     <div id="header-content">
         <a href="/"><h1>CSigerStop.dk</h1></a>
         <form name="posterform" action="/" method="GET">
-            <span>STOP</span><input autofocus name="text" size=30 placeholder="nazi islam isme" value="{{text|lower}}" ><button>LAV PLAKAT</button>
+            <span>STOP</span><input autofocus name="text" size=30 placeholder="nazi islam isme" value="" ><button>LAV PLAKAT</button>
         </form>
         <div class="clear"></div>
     </div>
@@ -30,27 +24,12 @@
     <span class='st_googleplus_hcount' displayText='Google +'></span>
     <span class='st__hcount' displayText=''></span>
 </div>
-<div id="image-placeholder">
-    {% if text %}
-        <img src="/render?text={{text|urlencode}}" alt="Konservativ - stop {{text}}" />
-        <p class="dim">Du kan gemme billedet ved at højreklikke og vælge "gem billede som".</p>
-    {% else %}
-        <img src="/hammertime.png" alt="Konservativ - stop ham mer time" />
-    {% endif %}
-</div>
-
-{% if popular|count >= 4 %}
 <div id="other-posters">
-    <hr>
     <h2>Mest Besøgte Plakater Lige Nu</h2>
     <div id="popular-container">
     {% for item in popular %}<a class="popular" href="/?text={{item|urlencode}}"><img src="/render?text={{item|urlencode}}&thumbnail=1" alt="Konservativ - stop {{item}}" /></a>{% endfor %}
-    <br>
-    <a id="view-hot-posters" href="/hot">Se flere</a>
     </div>
 </div>
-{% endif %}
-
 <div id="about">
     <hr>
     <h2>Om Den Konservative Plakat Generator</h2>
