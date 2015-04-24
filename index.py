@@ -16,7 +16,7 @@ class Resource(object):
         if "csigerstop.lzy.dk" in req.host:
             resp.status = falcon.HTTP_301
             if text:
-                resp.location = "http://csigerstop.dk?text=%s" % uri.encode(text.lower())
+                resp.location = "http://csigerstop.dk?text=%s" % text.lower()
             else:
                 resp.location = "http://csigerstop.dk"
         else:
