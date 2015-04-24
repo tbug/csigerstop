@@ -153,6 +153,7 @@ class ImageLayout(object):
 
         return base_img
 
+
 class Resource(object):
 
     def __init__(self):
@@ -160,7 +161,10 @@ class Resource(object):
         self.thumbnail_layout = ImageLayout(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
         self.image_cache = LRUCache(1024*1024*CACHE_SIZE)
         self.thumbnail_cache = LRUCache(1024*1024*THUMBNAIL_CACHE_SIZE)
-        self.latest_render_times = collections.deque(maxlen=100)
+
+        self.latest_cache_hit_times = collections.deque(maxlen=50)
+        self.latest_cache_miss_times = collections.deque(maxlen=50)
+        self.latest_response_times = collections.deque(maxlen=50)
 
     @property
     def base_img(self):
@@ -210,6 +214,7 @@ class Resource(object):
             draw.draw(img)
 
     def on_get(self, req, resp):
+        time_response_begin = time.time()
 
         is_thumbnail = bool(req.get_param("thumbnail"))
 
@@ -239,29 +244,43 @@ class Resource(object):
         text = re.sub(r"_+", " ", text)
 
         image_data = cache.get(text)
-        if not image_data:
-            time_begin = time.time()
+        cache_hit = image_data is not None
+        if not cache_hit:
+            time_render_begin = time.time()  # stats
             with layout.base_image.clone() as canvas:
                 self.draw_text(layout, canvas, text)
                 image_data = canvas.make_blob("png")
             cache.set(text, image_data)
-            render_time = time.time() - time_begin
-            self.latest_render_times.append(render_time)
+            render_time = time.time() - time_render_begin  # stats
+            self.latest_cache_miss_times.append(render_time)  # stats
 
         resp.set_header("Cache-Control", "public, max-age=3600")
         resp.set_header("Content-Type", "image/png")
         resp.set_header("ETag", hashlib.md5(text.encode("utf-8")).hexdigest())
         resp.body = image_data
 
+        now = time.time()
+        if cache_hit:
+            cache_hit_time = time.time() - time_response_begin
+        response_time = now - time_response_begin
+
+        self.latest_response_times.append(response_time)
+        if cache_hit:
+            self.latest_cache_hit_times.append(cache_hit_time)
+
+
+
     def on_post(self, req, resp):
 
         stats = [
             "%d items in image cache" % len(self.image_cache.cache),
-            "%f MB in image cache" % ((self.image_cache.current_capacity or 0.1) / 1024 / 1024),
+            "%f MB in image cache" % ((self.image_cache.current_capacity or 0.01) / 1024 / 1024),
             "",
             "%d items in thumbnail cache" % len(self.thumbnail_cache.cache),
-            "%f MB in thumbnail cache" % ((self.thumbnail_cache.current_capacity or 0.1) / 1024 / 1024),
+            "%f MB in thumbnail cache" % ((self.thumbnail_cache.current_capacity or 0.01) / 1024 / 1024),
             "",
-            "Average render time: %.2f ms" % (sum(self.latest_render_times)/len(self.latest_render_times)*1000),
+            "Average cache-miss time: %.2f ms" % (sum(self.latest_cache_miss_times)/(len(self.latest_cache_miss_times) or 1)*1000),
+            "Average cache-hit  time: %.2f ms" % (sum(self.latest_cache_hit_times)/(len(self.latest_cache_hit_times) or 1)*1000),
+            "Average respoonse  time: %.2f ms" % (sum(self.latest_response_times)/(len(self.latest_response_times) or 1)*1000),
         ]
         resp.body = "\n".join(stats)
