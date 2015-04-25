@@ -11,9 +11,8 @@ def hotness(count, last, now):
 
 
 class StatsObject(object):
-    def __init__(self, purge_after=7200, min_count=4):
+    def __init__(self, purge_after=7200):
         self.purge_after = purge_after
-        self.min_count = min_count
         self.data = {}
 
     def increment(self, key):
@@ -22,19 +21,18 @@ class StatsObject(object):
             self.data[key] = (current[0], time.time(), current[2]+1)
         else:
             now = time.time()
-            self.data[key] = (now, now, 2)
+            self.data[key] = (now, now, 1)
 
     def clean(self):
         now = time.time()
         purge_after = self.purge_after
-        min_count = self.min_count
         self.data = {key: value
                      for key, value in self.data.items()
-                     if (now - value[1]) < purge_after and value[2] >= min_count}
+                     if (now - value[1]) < purge_after}
 
-    def get_top(self, n):
+    def get_top(self, n, min_count=1):
         now = time.time()
         scoregen = ((key, hotness(count, first, now))
-                    for (key, (first, last, count)) in self.data.items())
+                    for (key, (first, last, count)) in self.data.items() if count >= min_count)
         sort = sorted(scoregen, key=lambda t: t[1])[:n]
         return list(reversed(list(map(lambda t: t[0], sort))))

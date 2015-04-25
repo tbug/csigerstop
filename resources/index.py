@@ -55,16 +55,15 @@ class Resource(object):
                 self.check_ip_window()  # handle cleanup etc of seen ip set
                 ip = get_client_ip(req)
 
-                if ip not in self.seen_ips:
+                if ip == "127.0.0.1" or ip not in self.seen_ips:
                     self.seen_ips.add(ip)
-
-                self.stats.increment(text)
-                self.stats.clean()
+                    self.stats.increment(text)
+                    self.stats.clean()
 
             context = {
                 "text": text or "",
-                "popular": self.stats.get_top(4)
+                "popular": self.stats.get_top(4, 5)
             }
-            resp.set_header("Cache-Control", "max-age=3600")
+            resp.set_header("Cache-Control", "max-age=60")
             resp.set_header("Content-Type", "text/html; charset=utf8")
             resp.body = self.env.get_template("index.html").render(**context)
