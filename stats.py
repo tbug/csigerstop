@@ -5,13 +5,13 @@ from math import log, exp
 
 def hotness(count, last, now):
     base = log(max(count, 1))
-    diff = (now - last) / 604800
+    diff = (now - last) / 3600
     x = diff - 1
     return base * exp(-8*x*x)
 
 
 class StatsObject(object):
-    def __init__(self, purge_after=900, min_count=4):
+    def __init__(self, purge_after=7200, min_count=4):
         self.purge_after = purge_after
         self.min_count = min_count
         self.data = {}
