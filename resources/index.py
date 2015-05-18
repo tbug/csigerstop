@@ -36,34 +36,26 @@ class Resource(object):
         # redirect to clean version if possible
         if text != cleaned and req.get_param("r") != "0":
             resp.status = falcon.HTTP_301
-            resp.location = "http://csigerstop.dk?text=%s&r=0" % cleaned
+            resp.location = "/?text=%s&r=0" % cleaned
             return
 
         text = cleaned
 
-        if "csigerstop.lzy.dk" in req.host:
-            resp.status = falcon.HTTP_301
-            if text:
-                resp.location = "http://csigerstop.dk?text=%s" % text.lower()
-            else:
-                resp.location = "http://csigerstop.dk"
-        else:
+        if text and len(text) > 0:
+            resp.add_link("/render?text=%s" % uri.encode(text), "prefetch")
 
-            if text and len(text) > 0:
-                resp.add_link("/render?text=%s" % uri.encode(text), "prefetch")
+            self.check_ip_window()  # handle cleanup etc of seen ip set
+            ip = get_client_ip(req)
 
-                self.check_ip_window()  # handle cleanup etc of seen ip set
-                ip = get_client_ip(req)
+            if ip == "127.0.0.1" or ip not in self.seen_ips:
+                self.seen_ips.add(ip)
+                self.stats.increment(text)
+                self.stats.clean()
 
-                if ip == "127.0.0.1" or ip not in self.seen_ips:
-                    self.seen_ips.add(ip)
-                    self.stats.increment(text)
-                    self.stats.clean()
-
-            context = {
-                "text": text or "",
-                "popular": self.stats.get_top(4, 5)
-            }
-            resp.set_header("Cache-Control", "max-age=60")
-            resp.set_header("Content-Type", "text/html; charset=utf8")
-            resp.body = self.env.get_template("index.html").render(**context)
+        context = {
+            "text": text or "",
+            "popular": self.stats.get_top(4, 5)
+        }
+        resp.set_header("Cache-Control", "max-age=60")
+        resp.set_header("Content-Type", "text/html; charset=utf8")
+        resp.body = self.env.get_template("index.html").render(**context)
