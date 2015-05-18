@@ -10,8 +10,8 @@ from wand.drawing import Drawing
 from lrucache import LRUCache
 from util import clean_text
 
-CACHE_SIZE = 48  # MB
-THUMBNAIL_CACHE_SIZE = 24  # MB
+CACHE_SIZE = 16  # MB
+THUMBNAIL_CACHE_SIZE = 8  # MB
 TEXT_MAX_LEN = 100
 
 HEX_COLOR_LIME = "#9AC61E"
