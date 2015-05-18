@@ -16,7 +16,7 @@ image handling.
 
 Approximately 5 hour job + a few extra hours polishing up.
 
-Might serve as reference.
+Might serve as reference for similar projects.
 Direct copy to production def. not recommended :)
 
 
