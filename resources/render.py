@@ -43,7 +43,6 @@ class ImageLayout(object):
         self.img_payoff_width_target = int(0.20*width)
         self.img_name_width_target = int(0.28*width)
         self.img_logo_width_target = int(0.12*width)
-        self.img_dickbutt_width_target = int(0.05*width)
 
         self.path_font = "./fonts/Raleway-ExtraBoldItalic.ttf"
         self.lzy_path_font = "./fonts/Raleway-Medium.ttf"
@@ -52,7 +51,6 @@ class ImageLayout(object):
         self.path_img_payoff = "./images/payoff.png"
         self.path_img_name = "./images/name.png"
         self.path_img_logo = "./images/logo.png"
-        self.path_img_dickbutt = "./images/dickbutt.png"
 
         self._base_image = None
 
@@ -85,11 +83,6 @@ class ImageLayout(object):
         scale = int(img_logo.height * self.img_logo_width_target / img_logo.width)
         img_logo.resize(self.img_logo_width_target, scale)
 
-        # dickbutt
-        img_dickbutt = Image(filename=self.path_img_dickbutt)
-        scale = int(img_dickbutt.height * self.img_dickbutt_width_target / img_dickbutt.width)
-        img_dickbutt.resize(self.img_dickbutt_width_target, scale)
-
         # calc the offsets
         self.stop_y_offset = int(self.height*0.11)
         self.stop_x_offset = 0
@@ -105,9 +98,6 @@ class ImageLayout(object):
 
         self.logo_y_offset = int(self.height*0.858)
         self.logo_x_offset = int(self.width*0.80)
-
-        self.dickbutt_x_offset = int(self.width*0.24)
-        self.dickbutt_y_offset = int(self.height*0.9)
 
         # compose the base image
         base_img = Image(
@@ -129,14 +119,6 @@ class ImageLayout(object):
                            left=self.logo_x_offset,
                            top=self.logo_y_offset)
 
-        if self.width >= 300:
-            base_img.composite_channel(
-                channel="rgb_channels",
-                image=img_dickbutt,
-                left=self.dickbutt_x_offset,
-                top=self.dickbutt_y_offset,
-                operator='blend')
-
         if self.width >= 200:
             with Drawing() as footer_draw:
                 footer_draw.font = self.lzy_path_font
@@ -150,7 +132,6 @@ class ImageLayout(object):
         img_payoff.destroy()
         img_name.destroy()
         img_logo.destroy()
-        img_dickbutt.destroy()
 
         return base_img
 
